@@ -25,5 +25,5 @@ app =
            text "Hello World!"
        get ("search" <//> var) $ \term ->
            do (DummyAppState ref) <- getState
-            --   results <- "asdfa"  -- TODO get results from Twitter here
+              -- let results =  -- TODO get results from Twitter here
               text ("Here are your results for \"" <> term <> "\":\n")
