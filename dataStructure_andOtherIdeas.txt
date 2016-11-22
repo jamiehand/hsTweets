@@ -1,0 +1,66 @@
+* project planning! *
+
+- produce an interface mock-up
+- produce preliminary data definitions
+  - list of types
+    - "this data type needs these fields"
+- produce high-level scaffold design
+	- take some input
+	- produce some output
+- get feedback
+
+
+* interface *
+
+- index w/o query: ask for a term
+- index w/ query: display tweets
+  - first: show 20 of most recent
+  - possible: live-update every 5 seconds or so
+- possible: embed photos, videos
+- possible: view multiple feeds side by side
+  - https://hackage.haskell.org/package/reddit
+- possible: resize TweetBoxes based on size of page
+
+* data types *
+
+- TweetBox
+  - Int width
+  - Int height
+  - Tweet tweet
+    - TODO: keep Tweet separate?
+
+- NOTE: results will be a list of Tweets
+- Tweet
+  - String username
+  - String text
+    - NOTE: this might need to change in order to allow for making URLs
+      clickable.
+  - [Attachments] attachments
+    - e.g. image, video
+
+- SearchBox
+  - Int width
+  - (no height b/c we can use a default height)
+  - String input
+
+- Query
+  - String text
+  - NOTE: we can add more here if we want to make queries more complex
+
+- URL
+  - String URL
+
+- Webpage
+
+
+* scaffold design *
+
+- see scaffoldDesign.hs
+- NOTE: we can probably use a lib to access Twitter, lib to parse html,
+  lib to get it onto a webpage
+- skeleton design
+  - input -> process -> output
+- make a "useless" layout that currently does nothing but can be built on
+  - allows work to be divided up easily
+    - important thing between these two is the Data definition!
+    - makes the relationships between components concrete!
