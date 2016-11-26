@@ -2,6 +2,8 @@
 
 module Main where
 
+import TwSearch
+
 import Web.Spock
 import Web.Spock.Config
 
@@ -25,5 +27,5 @@ app =
            text "Hello World!"
        get ("search" <//> var) $ \term ->
            do (DummyAppState ref) <- getState
-              -- let results =  -- TODO get results from Twitter here
-              text ("Here are your results for \"" <> term <> "\":\n")
+              let results = foldr (\x y -> x <> "\n\n" <> y) "" (searchContent 10 (T.unpack term)) -- TODO get results from Twitter here
+              text ("Here are your results for \"" <> term <> "\":\n\n" <> T.pack(results))
