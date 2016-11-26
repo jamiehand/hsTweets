@@ -1,24 +1,31 @@
-* To run
+# hsTweets
+
+## To run
 
 In command line:
 
+```
 $ cd hsTweets
 $ cabal sandbox init
 $ cabal install spock twitter-conduit
 $ cabal exec ghci
+```
 
-* Basic functionality of each module:
+## Basic functionality of each module:
 
-* Main *
+### Main
 
+```
 Prelude> :l Main.hs
 *Main> main
+```
 
 In a browser:
-localhost:8080/search/hello%20there
+`localhost:8080/search/hello%20there`
 
+### TwSearch
 
-* TwSearch *
-
+```
 Prelude> :l TwSearch
 *TwSearch> searchContent 10 "obama"
+```
