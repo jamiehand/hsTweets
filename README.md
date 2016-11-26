@@ -29,3 +29,7 @@ In a browser:
 Prelude> :l TwSearch
 *TwSearch> searchContent 10 "obama"
 ```
+
+## TODO
+
+- Add search box
