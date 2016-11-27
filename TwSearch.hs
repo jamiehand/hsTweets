@@ -3,7 +3,7 @@
 
 {-# LANGUAGE OverloadedStrings #-}
 
-module TWSearch where
+module TwSearch where
 
 import qualified Data.Text as T
 import Web.Twitter.Conduit
