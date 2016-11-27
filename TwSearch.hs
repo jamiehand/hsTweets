@@ -3,7 +3,7 @@
 
 {-# LANGUAGE OverloadedStrings #-}
 
-module TwSearch where
+--module TWSearch where
 
 import qualified Data.Text as T
 import Web.Twitter.Conduit
@@ -37,7 +37,18 @@ getResult n str= do
     mgr <- newManager tlsManagerSettings
     call twInfo mgr $ (search $ T.pack str) & Web.Twitter.Conduit.Parameters.count ?~ (n)
 
+getMaybe (Just a) = a
 
-searchContent :: Integer -> String -> [String]
-searchContent n str = Prelude.map T.unpack . Prelude.map f $ ((unsafePerformIO (getResult n str)) ^. searchResultStatuses)
-                        where f x = T.concat [(x^. statusUser . userScreenName), ": ", (x^. statusText)]
+getURL :: Status -> T.Text
+getURL x | ((getMaybe (x ^. statusEntities)) ^. enMedia) == [] = T.empty
+         | otherwise                                           = (head ((getMaybe (x ^. statusEntities)) ^. enMedia)) ^. entityBody . meMediaURL
+
+
+searchContent' :: Integer -> String -> [String]
+searchContent' n str = Prelude.map T.unpack . Prelude.map f $ ((unsafePerformIO (getResult n str)) ^. searchResultStatuses)
+                        where f x = T.concat [(x^. statusUser . userScreenName), ": ", (x^. statusText), " [Image URL:", (getURL x), "]" ]
+
+
+searchContent :: Integer -> String -> (Maybe [String])
+searchContent n str | (searchContent' n str) == [] = Nothing
+                    | otherwise                    = Just (searchContent' n str)
