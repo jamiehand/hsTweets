@@ -5,6 +5,8 @@ module Main where
 import TwSearch
 
 import Control.Applicative ((<$>), optional)
+import Data.Monoid ((<>), mappend, mempty, mconcat)
+-- TODO remove the monoid imports?
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import Data.Text.Lazy (unpack)
@@ -69,4 +71,9 @@ search = msum [ viewForm, processForm ]
           term <- lookText "term"
           ok $ template "search" $ do
             H.p (toHtml ("Here are the most recent 10 results for " ++ unpack term ++ ":"))
-            H.p (toHtml (head (searchContent 10 (unpack term)))) -- TODO remove "head"; how to  map over a list of Strings and make a paragraph (H.p) for each one?
+            -- H.p (toHtml (head (searchContent 10 (unpack term)))) -- TODO remove "head"; how to  map over a list of Strings and make a paragraph (H.p) for each one?
+            -- TODO can we <> H.p's together?
+            foldl (\y x -> H.p (toHtml x) <> y) (H.p "Here are your results:") (searchContent 10 (unpack term))
+            -- TODO let user specify how many results they want? (e.g. between 1 and 100)
+            -- TODO better to use foldr or foldl here? (or foldl' for lazy evaluation, if we're doing
+            -- streaming...? NOTE: to use foldr, just switch the "y" and "x" at front of anon. fcn.)
