@@ -77,10 +77,10 @@ search = msum [ viewForm, processForm ]
               input ! type_ "submit" ! value "Search!"
             H.p $ "term is set to: " >> toHtml (show mTerm)
             case mTerm of
-              Nothing -> H.p $ "no results!" -- TODO really, we don't need anything to print here.
+              Nothing   -> H.p $ "no results!" -- TODO really, we don't need anything to print here.
                               -- Ideally, we could show an empty page w/ search form in center.
-              otherwise -> do
-                let (Just term) = mTerm
+              Just term -> do
+                -- let (Just term) = mTerm -- NOTE: no need for this bc I can get term with case pattern matching
                 H.p (toHtml ("Here are the most recent 10 results for " ++ unpack term ++ ":"))
                 -- H.p (toHtml (head (searchContent 10 (unpack term)))) -- TODO remove "head"; how to  map over a list of Strings and make a paragraph (H.p) for each one?
                 -- TODO can we <> H.p's together?
