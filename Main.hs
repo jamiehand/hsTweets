@@ -17,6 +17,8 @@ import Text.Blaze.Html5.Attributes (action, enctype, href,
 import qualified Text.Blaze.Html5            as H
 import qualified Text.Blaze.Html5.Attributes as A
 
+import Text.Blaze.Internal (MarkupM)
+
 
 main :: IO ()
 main = serve (Just appConfig) app
@@ -51,15 +53,6 @@ homePage =
     H.p "Check out these killer apps."
     H.p $ a ! href "/search?term=hello%20world"  $ "search"
 
-
--- query string parameters
--- queryParams :: ServerPart Response
--- queryParams =
---   do  mFoo <- optional $ lookText "foo"   -- lookText looks for query param
---       ok $ template "query params" $ do  -- passes title & body to template
---         p $ "foo is set to: " >> toHtml (show mFoo)
---         p $ "change the url to set it to something else."
-
 -- search page
 search :: ServerPart Response
 search = msum [ viewForm, processForm ]
@@ -70,43 +63,48 @@ search = msum [ viewForm, processForm ]
           mTerm <- optional $ lookText "term"
           ok $ template "form" $ do
             -- TODO put `searchForm` here instead of all this code
-            form ! action "/search" ! enctype "multipart/form-data" ! A.method "POST" $ do
-            -- TODO add as query param instead of form data
-              label ! A.for "term"   $ "Search for a term"
-              input ! type_ "text"   ! A.id "term" ! name "term"
-              input ! type_ "submit" ! value "Search!"
+            searchForm
             H.p $ "term is set to: " >> toHtml (show mTerm)
             case mTerm of
               Nothing   -> H.p $ "no results!" -- TODO really, we don't need anything to print here.
                               -- Ideally, we could show an empty page w/ search form in center.
-              Just term -> do
-                -- let (Just term) = mTerm -- NOTE: no need for this bc I can get term with case pattern matching
-                H.p (toHtml ("Here are the most recent 10 results for " ++ unpack term ++ ":"))
-                -- H.p (toHtml (head (searchContent 10 (unpack term)))) -- TODO remove "head"; how to  map over a list of Strings and make a paragraph (H.p) for each one?
-                -- TODO can we <> H.p's together?
-                foldl (\y x -> H.p (toHtml x) <> y) (H.p "Here are your results:") (searchContent 10 (unpack term))
+              Just term -> displayResultsIfTerm (unpack term)
 
     processForm :: ServerPart Response
     processForm =
       do  method POST
           term <- lookText "term"
           ok $ template "search" $ do
-            -- TODO put `searchForm` here instead of all this code
-            form ! action "/search" ! enctype "multipart/form-data" ! A.method "POST" $ do  -- TODO add query term to end of search URL here.
-              label ! A.for "term"   $ "Search for a term"
-              input ! type_ "text"   ! A.id "term" ! name "term"
-              input ! type_ "submit" ! value "Search!"
-            H.p (toHtml ("Here are the most recent 10 results for " ++ unpack term ++ ":"))
-            -- H.p (toHtml (head (searchContent 10 (unpack term)))) -- TODO remove "head"; how to  map over a list of Strings and make a paragraph (H.p) for each one?
-            -- TODO can we <> H.p's together?
-            foldl (\y x -> H.p (toHtml x) <> y) (H.p "Here are your results:") (searchContent 10 (unpack term))
-            -- TODO let user specify how many results they want? (e.g. between 1 and 100)
-            -- TODO better to use foldr or foldl here? (or foldl' for lazy evaluation, if we're doing
-            -- streaming...? NOTE: to use foldr, just switch the "y" and "x" at front of anon. fcn.)
+            searchForm
+            displayResultsIfTerm (unpack term)
+
 
 -- TODO: the below, so that the code for viewForm and processForm don't repeat it.
--- searchForm :: Html -> Html
+searchForm :: Html
+searchForm =
+  form ! action "/search" ! enctype "multipart/form-data" ! A.method "POST" $ do
+  -- TODO add term as query param to end of search URL here. (TODO, do this *instead of*, or *in addition to*, passing as form data?)
+    label ! A.for "term"   $ "Search for a term"
+    input ! type_ "text"   ! A.id "term" ! name "term"
+    input ! type_ "submit" ! value "Search!"
 
+displayResults :: [Char] -> Text.Blaze.Internal.MarkupM ()  -- TODO clean types up here?
+displayResults term = do
+  H.p (toHtml ("Here are the most recent 10 results for " ++ term ++ ":"))
+  -- H.p (toHtml (head (searchContent 10 (unpack term)))) -- TODO remove this
+  -- TODO understand this better: how we can <> H.p's together, but how is it working?
+  foldl (\y x -> H.p (toHtml x) <> y) (H.p "Here are your results:") (searchContent 10 term)
+  -- TODO let user specify how many results they want? (e.g. between 1 and 100)
+  -- TODO better to use foldr or foldl here? (or foldl' for lazy evaluation, if we're doing
+  -- streaming...? NOTE: to use foldr, just switch the "y" and "x" at front of anon. fcn.)
+  -- TODO why do new results show up at top instead of bottom (e.g. why is "Here are your results" at the
+  -- bottom of the page instead of at the top?)
+
+displayResultsIfTerm :: [Char] -> MarkupM ()
+displayResultsIfTerm term =
+  case term of
+    ""        -> "Please enter a search term."
+    otherwise -> displayResults term
 
 -- TODO it seems weird to me to have POST code that executes a search *and* GET code
 -- that executes a search -- I feel like the POST should just execute GET
