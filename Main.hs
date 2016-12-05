@@ -62,7 +62,6 @@ search = msum [ viewForm, processForm ]
       do  method GET
           mTerm <- optional $ lookText "term"
           ok $ template "form" $ do
-            -- TODO put `searchForm` here instead of all this code
             searchForm
             H.p $ "term is set to: " >> toHtml (show mTerm)
             case mTerm of
@@ -74,9 +73,11 @@ search = msum [ viewForm, processForm ]
     processForm =
       do  method POST
           term <- lookText "term"
-          ok $ template "search" $ do
-            searchForm
-            displayResultsIfTerm (unpack term)
+          seeOther (("/search?term=" <> (unpack term)) :: String) (toResponse ())
+          -- TODO keep the above redirect, or the below functionality (responding directly with the page to display)?
+          -- ok $ template "search" $ do
+          --   searchForm
+          --   displayResultsIfTerm (unpack term)
 
 
 -- TODO: the below, so that the code for viewForm and processForm don't repeat it.
