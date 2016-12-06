@@ -29,7 +29,8 @@ import qualified Text.Blaze.Html5.Attributes as A
 -- It is included inline here to keep the example
 -- self-contained.
 css :: Html
-css =
+css = -- do
+  -- contents <- readFile "style.css"   -- runs action on right and extracts result from container.
  let s = T.concat  -- TODO shorten this call, to something like "T.concat"? as T
       -- TODO remove most of this CSS; and put the CSS in its own file.
       [ "body { color: #555; padding: 0; margin: 0; margin-left: 1em;}"
@@ -51,6 +52,7 @@ css =
       , "#menu form { display: inline; margin-left: 1em; }"
       ]
  in H.style ! A.type_ "text/css" $ H.toHtml s
+  -- H.style ! A.type_ "text/css" $ H.toHtml contents
 
 main :: IO ()
 main = serve (Just appConfig) app
@@ -63,16 +65,23 @@ appConfig = ServerConfig { port      = 8080
 
 app :: ServerPart Response
 app = msum
-  [ dir "search" $ search
-  , dir ""       $ homePage
+  [ dir "search"    $ search
+  , dir ""          $ homePage
+  -- , dir "style.css" $
   , homePage  -- TODO make this a 404 page (w/ a link back home)?
   ]
+
+-- happstack crash course: serving static files / files from disk
+-- serving a single file.
+-- try to put a line like <link rel="stylesheet" type="text/css" href="style.css" />
+-- into my template.
 
 template :: Text -> Html -> Response
 template title body = toResponse $
   H.html $ do
     H.head $ do
       css
+      -- H.link ! rel = .....
       H.title (toHtml title)
     H.body $ do
       body
@@ -128,8 +137,7 @@ displayResults term = do
     []        -> H.p (toHtml $ "There are no recent results for \"" ++ term ++ "\".")
     otherwise -> do
       H.p (toHtml $ "Here are the most recent 10 results for \"" ++ term ++ "\":")
-      -- foldl (\y x -> y <> H.p (toHtml x)) (H.p "Here are your results:") results
-      mconcat $ map (H.p . toHtml) results  -- <>s everything together
+      mconcat $ map (H.p . toHtml) results
       -- TODO let user specify how many results they want? (e.g. between 1 and 100)
 
 displayResultsIfTerm :: [Char] -> MarkupM ()
