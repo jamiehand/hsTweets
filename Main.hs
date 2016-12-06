@@ -9,7 +9,11 @@ import Data.Monoid ((<>), mappend, mempty, mconcat)
 -- TODO remove the monoid imports?
 import Data.Maybe (fromMaybe)
 import Data.Text (Text, concat)
+import qualified Data.Text as T
+
 import Data.Text.Lazy (unpack)
+
+import Network.HTTP (urlEncode)
 import Happstack.Lite
 import Text.Blaze.Internal (MarkupM)
 import Text.Blaze.Html5 (Html, (!), a, form, input, p, toHtml, label)
@@ -26,7 +30,7 @@ import qualified Text.Blaze.Html5.Attributes as A
 -- self-contained.
 css :: Html
 css =
- let s = Data.Text.concat  -- TODO shorten this call, to something like "T.concat"?
+ let s = T.concat  -- TODO shorten this call, to something like "T.concat"? as T
       -- TODO remove most of this CSS; and put the CSS in its own file.
       [ "body { color: #555; padding: 0; margin: 0; margin-left: 1em;}"
       , "ul { list-style-type: none; }"
@@ -99,59 +103,37 @@ search = msum [ viewForm, processForm ]
               Just term -> do
                 searchForm "results-search-page"
                 displayResultsIfTerm (unpack term)
-            -- H.p $ "term is set to: " >> toHtml (show mTerm)
 
 
     processForm :: ServerPart Response
     processForm =
       do  method POST
-          term <- lookText "term"
-          seeOther (("/search?term=" <> (unpack term)) :: String) (toResponse ())
-          -- TODO keep the above redirect, or the below functionality (responding directly with the page to display)?
-          -- TODO add term as query param to end of search URL here. (TODO, do this *instead of*, or *in addition to*, passing as form data?)
-          -- ok $ template "search" $ do
-          --   searchForm "results-search-page"
-          --   displayResultsIfTerm (unpack term)
+          term <- lookText "term"   -- TODO difference between <- and let?
+          let urlEncoded = urlEncode (unpack term)
+          -- redirect to GET /search
+          seeOther (("/search?term=" <> urlEncoded) :: String) (toResponse ())
 
 
 searchForm :: H.AttributeValue -> Html
 searchForm formClass =
   form ! A.class_ formClass ! action "/search"
   ! enctype "multipart/form-data" ! A.method "POST" $ do
-    -- label ! A.for "term"   $ "Search for a term"  -- TODO do we want a label?
     input ! type_ "text"   ! A.id "term" ! name "term" ! size "80"
     input ! type_ "submit" ! value "Search!"
 
-displayResults :: [Char] -> Text.Blaze.Internal.MarkupM ()  -- TODO clean types up here?
+displayResults :: [Char] -> MarkupM ()
 displayResults term = do
-  -- H.p (toHtml (head (searchContent 10 (unpack term)))) -- TODO remove this
-  -- TODO understand this better: how we can <> H.p's together, but how is it working?
   let results = searchContent 10 term
   case results of
-    []        -> H.p (toHtml $ "There are no recent results for \"" ++ term ++ "\".") -- TODO get this working when there are no recent results
+    []        -> H.p (toHtml $ "There are no recent results for \"" ++ term ++ "\".")
     otherwise -> do
       H.p (toHtml $ "Here are the most recent 10 results for \"" ++ term ++ "\":")
-      foldl (\y x -> H.p (toHtml x) <> y) (H.p "Here are your results:") results
+      -- foldl (\y x -> y <> H.p (toHtml x)) (H.p "Here are your results:") results
+      mconcat $ map (H.p . toHtml) results  -- <>s everything together
       -- TODO let user specify how many results they want? (e.g. between 1 and 100)
-      -- TODO better to use foldr or foldl here? (or foldl' for lazy evaluation, if we're doing
-      -- streaming...? NOTE: to use foldr, just switch the "y" and "x" at front of anon. fcn.)
-      -- TODO why do new results show up at top instead of bottom (e.g. why is "Here are your results" at the
-      -- bottom of the page instead of at the top?)
 
 displayResultsIfTerm :: [Char] -> MarkupM ()
 displayResultsIfTerm term =
   case term of
     ""        -> "Please enter a search term."
     otherwise -> displayResults term
-
--- TODO it seems weird to me to have POST code that executes a search *and* GET code
--- that executes a search -- I feel like the POST should just execute GET
--- request with the correct query parameters, to allow us to have all of our
--- search execution in one place. But that would make for two requests instead
--- of one when a POST is made.... (i.e. the POST, and then the GET that the
--- POST calls.) So actually it is probably faster to h
--- It just means that, in terms of code complexity and maintenance, we'll have
--- to keep up code for search execution in *two* places OR figure out a way
--- to have the POST and GET both execute searches, but have them both call the
--- same external function that DRYs up our code and keeps search execution
--- functionality in one place!! :) :) :)
