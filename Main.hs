@@ -22,38 +22,6 @@ import Text.Blaze.Html5.Attributes (action, enctype, href,
 import qualified Text.Blaze.Html5            as H
 import qualified Text.Blaze.Html5.Attributes as A
 
-
--- | CSS for our site
---
--- Normally this would live in an external .css file.
--- It is included inline here to keep the example
--- self-contained.
-css :: Html
-css = -- do
-  -- contents <- readFile "style.css"   -- runs action on right and extracts result from container.
- let s = T.concat  -- TODO shorten this call, to something like "T.concat"? as T
-      -- TODO remove most of this CSS; and put the CSS in its own file.
-      [ "body { color: #555; padding: 0; margin: 0; margin-left: 1em;}"
-      , "ul { list-style-type: none; }"
-      , "ol { list-style-type: none; }"
-      , "h1 { font-size: 1.5em; color: #900; margin: 0; }"
-      , ".author { color: #aaa; }"
-      , ".gray { color: #aaa; }"
-      , ".tags { color: #aaa; }"
-      , ".post { border-bottom: 1px dotted #aaa; margin-top: 1em; }"
-      , ".bdy  { color: #555; margin-top: 1em; }"
-      , ".post-footer { margin-top: 1em; margin-bottom: 1em; }"
-      -- , "label { display: inline-block; width: 3em; }"
-      , "form.empty-search-page { width: 600px; margin: 0 auto; margin-top: 5em; }"
-      , "form.results-search-page { width: 600px; margin: 0 auto; margin-top: 1em; margin-bottom: 1em;}"
-      , "#menu { margin: 0; padding: 0; margin-left: -1em;"
-      ,         "border-bottom: 1px solid #aaa; }"
-      , "#menu li { display: inline; margin-left: 1em; }"
-      , "#menu form { display: inline; margin-left: 1em; }"
-      ]
- in H.style ! A.type_ "text/css" $ H.toHtml s
-  -- H.style ! A.type_ "text/css" $ H.toHtml contents
-
 main :: IO ()
 main = serve (Just appConfig) app
 
@@ -65,23 +33,17 @@ appConfig = ServerConfig { port      = 8080
 
 app :: ServerPart Response
 app = msum
-  [ dir "search"    $ search
-  , dir ""          $ homePage
-  -- , dir "style.css" $
+  [ dir ""          $ homePage
+  , dir "search"    $ search
+  , dir "static"    $ serveStaticDir  -- serve static files
   , homePage  -- TODO make this a 404 page (w/ a link back home)?
   ]
-
--- happstack crash course: serving static files / files from disk
--- serving a single file.
--- try to put a line like <link rel="stylesheet" type="text/css" href="style.css" />
--- into my template.
 
 template :: Text -> Html -> Response
 template title body = toResponse $
   H.html $ do
     H.head $ do
-      css
-      -- H.link ! rel = .....
+      H.link ! A.rel "stylesheet" ! type_ "text/css" ! href "static/style.css"
       H.title (toHtml title)
     H.body $ do
       body
@@ -117,7 +79,7 @@ search = msum [ viewForm, processForm ]
     processForm :: ServerPart Response
     processForm =
       do  method POST
-          term <- lookText "term"   -- TODO difference between <- and let?
+          term <- lookText "term"
           let urlEncoded = urlEncode (unpack term)
           -- redirect to GET /search
           seeOther (("/search?term=" <> urlEncoded) :: String) (toResponse ())
@@ -145,3 +107,8 @@ displayResultsIfTerm term =
   case term of
     ""        -> "Please enter a search term."
     otherwise -> displayResults term
+
+serveStaticDir :: ServerPart Response
+-- There are no "index files" to the static directory, so we pass
+-- serveDirectory an empty list as the 2nd arg. Not sure if this is good form.
+serveStaticDir = serveDirectory DisableBrowsing [] "static"
