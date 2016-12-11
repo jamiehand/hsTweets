@@ -26,3 +26,9 @@ serveStaticDir :: ServerPart Response
 -- There are no "index files" to the static directory, so we pass
 -- serveDirectory an empty list as the 2nd arg. Not sure if this is good form.
 serveStaticDir = serveDirectory DisableBrowsing [] "static"
+
+notFoundHandler :: ServerPart Response
+notFoundHandler =
+  notFound $ template "not found" $ do
+    H.h1 "Not found"
+    H.p "The page you are looking for does not exist!"

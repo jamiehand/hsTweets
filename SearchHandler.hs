@@ -57,7 +57,7 @@ searchForm formClass =
 
 displayResults :: [Char] -> MarkupM ()
 displayResults term = do
-  let results = searchContent 10 term
+  let results = searchContent' 10 term
   case results of
     []        -> H.p (toHtml $ "There are no recent results for \"" ++ term ++ "\".")
     otherwise -> do

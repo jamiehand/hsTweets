@@ -22,5 +22,5 @@ app = msum
   [ dir ""          $ Handlers.homePage
   , dir "search"    $ Search.search
   , dir "static"    $ Handlers.serveStaticDir  -- serve static files
-  , Handlers.homePage  -- TODO make this a 404 page (w/ a link back home)?
+  , Handlers.notFoundHandler  -- TODO make this a 404 page (w/ a link back home)?
   ]
