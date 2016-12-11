@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings, ScopedTypeVariables #-}
 
-module SearchApp where
+module SearchHandler where
 
 import TwSearch
 import HtmlTemplate

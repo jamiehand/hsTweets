@@ -3,7 +3,7 @@
 module Main where
 
 import TwSearch
-import qualified SearchApp     as Search
+import qualified SearchHandler as Search
 import qualified OtherHandlers as Handlers
 
 import Happstack.Lite
