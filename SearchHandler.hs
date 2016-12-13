@@ -2,7 +2,7 @@
 
 module SearchHandler where
 
-import TwSearch
+import TweetObSearch
 import HtmlTemplate
 
 import Control.Applicative ((<$>), optional)
@@ -10,6 +10,7 @@ import Data.Monoid ((<>), mappend, mempty, mconcat)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text, concat)
 import qualified Data.Text as T
+import Data.String as S
 
 import Data.Text.Lazy (unpack)
 
@@ -57,13 +58,21 @@ searchForm formClass =
 
 displayResults :: [Char] -> MarkupM ()
 displayResults term = do
-  let results = searchContent 10 term
+  let statuses = extractStatus 10 term
+  let results = printBoth (Prelude.map getUsername statuses) (Prelude.map getText statuses)
+  let photos = Prelude.map getURL statuses
   case results of
     []        -> H.p (toHtml $ "There are no recent results for \"" ++ term ++ "\".")
     otherwise -> do
-      H.p (toHtml $ "Here are the most recent 10 results for \"" ++ term ++ "\":")
-      mconcat $ map (H.p . toHtml) results
-      -- TODO let user specify how many results they want? (e.g. between 1 and 100)
+      let imgs = map (H.img !) $ map (A.src . S.fromString) photos
+      let ps   = map (H.p . toHtml) results
+      H.p (toHtml $ "Here are the 10 most recent results for \"" ++ term ++ "\":")
+      mconcat $ tuplesToList (zip ps imgs)
+
+tuplesToList :: [(a,a)] -> [a]
+tuplesToList [] = []
+tuplesToList ((x,y):xs) = x:y:tuplesToList xs
+
 
 displayResultsIfTerm :: [Char] -> MarkupM ()
 displayResultsIfTerm term =
