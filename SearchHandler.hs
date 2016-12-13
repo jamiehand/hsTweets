@@ -69,11 +69,6 @@ displayResults term = do
       H.p (toHtml $ "Here are the 10 most recent results for \"" ++ term ++ "\":")
       mconcat $ tuplesToList (zip ps imgs)
 
-      --mconcat $ imgs
-      -- make list of strings (urls) into list of attributes, and then make those
-      -- attributes into the src field, and then make those into an img element.
-      --mconcat $ ps
-
 tuplesToList :: [(a,a)] -> [a]
 tuplesToList [] = []
 tuplesToList ((x,y):xs) = x:y:tuplesToList xs
