@@ -2,7 +2,7 @@
 
 module SearchHandler where
 
-import TwSearch
+import TweetObSearch
 import HtmlTemplate
 
 import Control.Applicative ((<$>), optional)
@@ -10,6 +10,7 @@ import Data.Monoid ((<>), mappend, mempty, mconcat)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text, concat)
 import qualified Data.Text as T
+import Data.String as S
 
 import Data.Text.Lazy (unpack)
 
@@ -57,13 +58,34 @@ searchForm formClass =
 
 displayResults :: [Char] -> MarkupM ()
 displayResults term = do
-  let results = searchContent 10 term
+  let statuses = tweetList 10 term
+  let results = map (\x -> " : " ++ x) (map text statuses)
+  let photos = map snapshotLink statuses
+  let links = map tweetLink statuses
+  let names = map username statuses
   case results of
     []        -> H.p (toHtml $ "There are no recent results for \"" ++ term ++ "\".")
     otherwise -> do
-      H.p (toHtml $ "Here are the most recent 10 results for \"" ++ term ++ "\":")
-      mconcat $ map (H.p . toHtml) results
-      -- TODO let user specify how many results they want? (e.g. between 1 and 100)
+      let usernames = map linkAndUser (zip links names)
+      let imgs = map (thumbSize) photos
+      let ps   = map (toHtml) results
+      let text = map (combineLinkText) (zip usernames ps)
+      H.p (toHtml $ "Here are the 10 most recent results for \"" ++ term ++ "\":")
+      H.p (mconcat $ tuplesToList (zip text imgs))
+
+linkAndUser :: (String, String) -> Html
+linkAndUser (link,name) = a ! href (S.fromString link) $ (S.fromString name)
+
+combineLinkText :: (Html,Html) -> Html
+combineLinkText (link,text) = H.p (mconcat (link:text: []))
+
+tuplesToList :: [(a,a)] -> [a]
+tuplesToList [] = []
+tuplesToList ((x,y):xs) = x:y:tuplesToList xs
+
+thumbSize :: String -> Html
+thumbSize photo | photo == "" = H.img ! (A.src (S.fromString photo)) ! A.height "0"
+                | otherwise   = H.img ! (A.src (S.fromString photo)) ! A.height "200"
 
 displayResultsIfTerm :: [Char] -> MarkupM ()
 displayResultsIfTerm term =

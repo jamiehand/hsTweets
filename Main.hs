@@ -2,7 +2,6 @@
 
 module Main where
 
-import TwSearch
 import qualified SearchHandler as Search
 import qualified OtherHandlers as Handlers
 

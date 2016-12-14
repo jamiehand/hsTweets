@@ -65,7 +65,7 @@ getFollow x = x^. statusUser . userFollowersCount
 
 getText :: Status -> String
 getText x = T.unpack y
-              where y = x^. statusText
+              where y = T.replace (T.pack "&amp;") (T.pack "&") (x^. statusText)
 
 getUsername :: Status -> String
 getUsername x = T.unpack y
