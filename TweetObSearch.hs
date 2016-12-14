@@ -107,3 +107,10 @@ buildTweet x = Tweet (getText x)
 
 tweetList :: Int -> String -> [Tweet]
 tweetList n str = Prelude.map buildTweet . extractStatus n $ str
+
+printBoth :: [String] -> [String] -> [String]
+printBoth [] [] = []
+printBoth x y = ((head x) ++ " : " ++ (head y)) : (printBoth (tail x) (tail y))
+
+printResult n str = printBoth (Prelude.map getUsername x) (Prelude.map getText x)
+    where x = extractStatus n str
