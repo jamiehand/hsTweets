@@ -21,7 +21,10 @@ Prelude> :l Main.hs
 ```
 
 In a browser:  
+[localhost:8080/index](localhost:8080/index)
 [localhost:8080/search?term=hello%20there](localhost:8080/search?term=hello%20there)
+[localhost:8080/about](localhost:8080/about)
+[localhost:8080/badlink](localhost:8080/badlink)
 
 
 ## To test:
@@ -44,3 +47,6 @@ In a browser:
   * with a space: [localhost:8080/search?term=hello%20there](localhost:8080/search?term=hello%20there)
   * no results: [localhost:8080/search?term=as;dlkfjaselrjkas;dlfkjas;dlfkj](localhost:8080/search?term=as;dlkfjaselrjkas;dlfkjas;dlfkj)
   * empty query: [localhost:8080/search?term=](localhost:8080/search?term=)
+
+* [localhost:8080/badlink](localhost:8080/badlink) should lead to a Not Found page.
+* [localhost:8080/about](localhost:8080/about) should lead to our About page.
