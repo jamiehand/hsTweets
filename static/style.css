@@ -8,26 +8,22 @@ body {
 
 h1 {
     font-size: 1.5em;
-    color: #900;
+    color: #453b61;
     margin: 0;
 }
 
 .gray {
-    color: #aaa;
+    color: #5f5286;
 }
-
-/*label { display: inline-block; width: 3em; }*/
 
 form.empty-search-page {
     width: 600px;
     margin: 0 auto;
-    margin-top: 5em;
 }
 
 form.results-search-page {
     width: 600px;
     margin: 0 auto;
-    margin-top: 1em;
     margin-bottom: 1em;
 }
 
@@ -35,16 +31,24 @@ form.results-search-page {
     display: block;
     margin-left: auto;
     margin-right: auto;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 .blocktext {
     margin-left: auto;
     margin-right: auto;
-    width: 300px;
+    max-width: 500px;
     border: 1px;
-    padding: 10em;
+    padding: 2em;
+    background-color: #9fd7f9;
+    color: #555;
 }
 
 .invisible {
     display: none;
+}
+
+a {
+    color: #5f5286;
 }
