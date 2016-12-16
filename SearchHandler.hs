@@ -84,7 +84,7 @@ tuplesToList [] = []
 tuplesToList ((x,y):xs) = x:y:tuplesToList xs
 
 thumbSize :: String -> Html
-thumbSize photo | photo == "" = H.img ! (A.src (S.fromString photo)) ! A.height "0"
+thumbSize photo | photo == "" = H.img ! (A.src (S.fromString photo)) ! A.height "0" ! A.class_ "invisible"
                 | otherwise   = H.img ! (A.src (S.fromString photo)) ! A.height "200"
 
 displayResultsIfTerm :: [Char] -> MarkupM ()

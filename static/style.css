@@ -6,14 +6,6 @@ body {
     font-family: sans-serif;
 }
 
-ul {
-    list-style-type: none;
-}
-
-ol {
-    list-style-type: none;
-}
-
 h1 {
     font-size: 1.5em;
     color: #900;
@@ -39,7 +31,20 @@ form.results-search-page {
     margin-bottom: 1em;
 }
 
-#menu { margin: 0; padding: 0; margin-left: -1em;
-         "border-bottom: 1px solid #aaa; }
-#menu li { display: inline; margin-left: 1em; }
-#menu form { display: inline; margin-left: 1em; }
+.logo {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.blocktext {
+    margin-left: auto;
+    margin-right: auto;
+    width: 300px;
+    border: 1px;
+    padding: 10em;
+}
+
+.invisible {
+    display: none;
+}
