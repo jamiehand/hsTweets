@@ -18,8 +18,9 @@ appConfig = ServerConfig { port      = 8080
 
 app :: ServerPart Response
 app = msum
-  [ dir ""          $ Handlers.homePage
+  [ dir "index"     $ Handlers.homePage
+  , dir "about"     $ Handlers.about
   , dir "search"    $ Search.search
   , dir "static"    $ Handlers.serveStaticDir  -- serve static files
-  , Handlers.homePage  -- TODO make this a 404 page (w/ a link back home)?
+  , Handlers.notFoundHandler  -- TODO make this a 404 page (w/ a link back home)?
   ]

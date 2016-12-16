@@ -17,5 +17,6 @@ template title body = toResponse $
       H.link ! A.rel "stylesheet" ! type_ "text/css" ! href "static/style.css"
       H.title (toHtml title)
     H.body $ do
+      a ! href "/index" $ H.img ! A.src "/static/logoWithText.png" ! A.class_ "logo" ! A.height "100"
       body
-      p $ a ! href "/" $ "back home"
+      a ! href "/index" $ H.img ! A.src "/static/logo.png"  ! A.class_ "logo" ! A.height "50"

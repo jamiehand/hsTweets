@@ -7,10 +7,7 @@ In command line:
 ```
 $ cd hsTweets
 $ cabal sandbox init
-$ cabal install spock twitter-conduit digestive-functors-happstack
-  -- TODO is digestive-bootstrap needed? or just
-  digestive-functors? -- it seems digestive-bootstrap includes
-  digestive-functors.
+$ cabal install happstack-lite twitter-conduit
 $ cabal exec ghci
 ```
 
@@ -26,12 +23,6 @@ Prelude> :l Main.hs
 In a browser:  
 [localhost:8080/search?term=hello%20there](localhost:8080/search?term=hello%20there)
 
-### TwSearch
-
-```
-Prelude> :l TwSearch
-*TwSearch> searchContent 10 "obama"
-```
 
 ## To test:
 
