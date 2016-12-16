@@ -22,8 +22,11 @@ Prelude> :l Main.hs
 
 In a browser:  
 [localhost:8080/index](localhost:8080/index)
+
 [localhost:8080/search?term=hello%20there](localhost:8080/search?term=hello%20there)
+
 [localhost:8080/about](localhost:8080/about)
+
 [localhost:8080/badlink](localhost:8080/badlink)
 
 
