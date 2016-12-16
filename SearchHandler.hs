@@ -58,21 +58,34 @@ searchForm formClass =
 
 displayResults :: [Char] -> MarkupM ()
 displayResults term = do
-  let statuses = extractStatus 10 term
-  let results = printBoth (Prelude.map getUsername statuses) (Prelude.map getText statuses)
-  let photos = Prelude.map getURL statuses
+  let statuses = tweetList 10 term
+  let results = map (\x -> " : " ++ x) (map text statuses)
+  let photos = map snapshotLink statuses
+  let links = map tweetLink statuses
+  let names = map username statuses
   case results of
     []        -> H.p (toHtml $ "There are no recent results for \"" ++ term ++ "\".")
     otherwise -> do
-      let imgs = map (H.img !) $ map (A.src . S.fromString) photos
-      let ps   = map (H.p . toHtml) results
+      let usernames = map linkAndUser (zip links names)
+      let imgs = map (thumbSize) photos
+      let ps   = map (toHtml) results
+      let text = map (combineLinkText) (zip usernames ps)
       H.p (toHtml $ "Here are the 10 most recent results for \"" ++ term ++ "\":")
-      mconcat $ tuplesToList (zip ps imgs)
+      H.p (mconcat $ tuplesToList (zip text imgs))
+
+linkAndUser :: (String, String) -> Html
+linkAndUser (link,name) = a ! href (S.fromString link) $ (S.fromString name)
+
+combineLinkText :: (Html,Html) -> Html
+combineLinkText (link,text) = H.p (mconcat (link:text: []))
 
 tuplesToList :: [(a,a)] -> [a]
 tuplesToList [] = []
 tuplesToList ((x,y):xs) = x:y:tuplesToList xs
 
+thumbSize :: String -> Html
+thumbSize photo | photo == "" = H.img ! (A.src (S.fromString photo)) ! A.height "0"
+                | otherwise   = H.img ! (A.src (S.fromString photo)) ! A.height "200"
 
 displayResultsIfTerm :: [Char] -> MarkupM ()
 displayResultsIfTerm term =
